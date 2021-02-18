@@ -12,6 +12,13 @@ public class IOTools {
     private IOTools() {
     }
 
+    /**
+     * 将reader的输入写入到writer中
+     * @param reader input from
+     * @param writer input write to
+     * @param buf 字符数组buffer
+     * @throws IOException
+     */
     public static void flow(Reader reader, Writer writer, char[] buf) throws IOException {
         int numRead;
         while ((numRead = reader.read(buf)) >= 0) {
@@ -19,11 +26,24 @@ public class IOTools {
         }
     }
 
+    /**
+     * 将reader的输入写入到writer中
+     * @param reader
+     * @param writer
+     * @throws IOException
+     */
     public static void flow(Reader reader, Writer writer) throws IOException {
-        char[] buf = new char[4096];
+        char[] buf = new char[DEFAULT_BUFFER_SIZE];
         com.honray.tongweb.servlet.IOTools.flow(reader, writer, buf);
     }
 
+    /**
+     * 将输入写入到输出
+     * @param is 输入
+     * @param os 输出
+     * @param buf 字符数组buffer
+     * @throws IOException
+     */
     public static void flow(InputStream is, OutputStream os, byte[] buf) throws IOException {
         int numRead;
         while ((numRead = is.read(buf)) >= 0) {
@@ -31,8 +51,14 @@ public class IOTools {
         }
     }
 
+    /**
+     * 将输入写入到输出
+     * @param is
+     * @param os
+     * @throws IOException
+     */
     public static void flow(InputStream is, OutputStream os) throws IOException {
-        byte[] buf = new byte[4096];
+        byte[] buf = new byte[DEFAULT_BUFFER_SIZE];
         com.honray.tongweb.servlet.IOTools.flow(is, os, buf);
     }
 }

@@ -27,18 +27,52 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-public final class HonrayCGIServlet
-        extends HttpServlet {
+public final class HonrayCGIServlet extends HttpServlet {
+
     private static final long serialVersionUID = 1L;
+
+    /**
+     * 是否是debug模式
+     */
     private int debug = 0;
+
+    /**
+     * CGI程序的路径
+     */
     private String cgiPathPrefix = null;
+
+    /**
+     * 默认CGI程序perl
+     */
     private String cgiExecutable = "perl";
+
+    /**
+     * CGI程序执行参数列表
+     */
     private List<String> cgiExecutableArgs = null;
+
+    /**
+     * 参数编码
+     */
     private String parameterEncoding = System.getProperty("file.encoding", "UTF-8");
+
+    /**
+     * 超时时间
+     */
     private long stderrTimeout = 2000L;
+
     static Object expandFileLock = new Object();
+
+    /**
+     * 环境变量
+     */
     static Hashtable<String, String> shellEnv = new Hashtable();
 
+    /**
+     * 设置实例的基本参数和初始化
+     * @param config
+     * @throws ServletException
+     */
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
@@ -71,6 +105,13 @@ public final class HonrayCGIServlet
         }
     }
 
+    /**
+     * 打印环境信息
+     * @param out ServletOutputStream
+     * @param req HttpServletRequest
+     * @param res HttpServletResponse
+     * @throws IOException
+     */
     protected void printServletEnvironment(ServletOutputStream out, HttpServletRequest req, HttpServletResponse res) throws IOException {
         String value;
         String param;
@@ -209,20 +250,17 @@ public final class HonrayCGIServlet
         out.println("<hr>");
     }
 
+    /**
+     * 处理http请求入口，所有的请求方法从此入口进入
+     * @param req
+     * @param res
+     * @throws ServletException
+     * @throws IOException
+     */
     @Override
     protected void service(HttpServletRequest req, HttpServletResponse res)
             throws ServletException, IOException {
 
-        this.doGet(req, res);
-    }
-
-    @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse res) throws IOException, ServletException {
-        this.doGet(req, res);
-    }
-
-    @Override
-    protected void doPut(HttpServletRequest req, HttpServletResponse res) throws IOException, ServletException {
         this.doGet(req, res);
     }
 
@@ -271,8 +309,7 @@ public final class HonrayCGIServlet
         }
     }
 
-    protected static class HTTPHeaderInputStream
-            extends InputStream {
+    protected static class HTTPHeaderInputStream extends InputStream {
         private static final int STATE_CHARACTER = 0;
         private static final int STATE_FIRST_CR = 1;
         private static final int STATE_FIRST_LF = 2;
@@ -283,43 +320,43 @@ public final class HonrayCGIServlet
 
         HTTPHeaderInputStream(InputStream theInput) {
             this.input = theInput;
-            this.state = 0;
+            this.state = STATE_CHARACTER;
         }
 
         @Override
         public int read() throws IOException {
-            if (this.state == 4) {
+            if (this.state == STATE_HEADER_END) {
                 return -1;
             }
             int i = this.input.read();
             if (i == 10) {
                 switch (this.state) {
-                    case 0:
-                    case 1: {
-                        this.state = 2;
+                    case STATE_CHARACTER:
+                    case STATE_FIRST_CR: {
+                        this.state = STATE_FIRST_LF;
                         break;
                     }
-                    case 2:
-                    case 3: {
-                        this.state = 4;
+                    case STATE_FIRST_LF:
+                    case STATE_SECOND_CR: {
+                        this.state = STATE_HEADER_END;
                     }
                 }
             } else if (i == 13) {
                 switch (this.state) {
-                    case 0: {
-                        this.state = 1;
+                    case STATE_CHARACTER: {
+                        this.state = STATE_FIRST_CR;
                         break;
                     }
-                    case 1: {
-                        this.state = 4;
+                    case STATE_FIRST_CR: {
+                        this.state = STATE_HEADER_END;
                         break;
                     }
-                    case 2: {
-                        this.state = 3;
+                    case STATE_FIRST_LF: {
+                        this.state = STATE_SECOND_CR;
                     }
                 }
             } else {
-                this.state = 0;
+                this.state = STATE_CHARACTER;
             }
             return i;
         }
