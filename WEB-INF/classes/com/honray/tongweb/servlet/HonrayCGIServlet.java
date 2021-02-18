@@ -84,6 +84,19 @@ public final class HonrayCGIServlet extends HttpServlet {
         if (passShellEnvironment) {
             shellEnv.putAll(System.getenv());
         }
+
+        // 默认环境变量
+        Enumeration<String> e = config.getInitParameterNames();
+        while(e.hasMoreElements()) {
+            String initParamName = e.nextElement();
+            if (initParamName.startsWith("environment-variable-")) {
+                if (initParamName.length() == 21) {
+                    throw new ServletException("emptyEnvVarName");
+                }
+                shellEnv.put(initParamName.substring(21), config.getInitParameter(initParamName));
+            }
+        }
+
         if (this.getServletConfig().getInitParameter("executable") != null) {
             this.cgiExecutable = this.getServletConfig().getInitParameter("executable");
         }
@@ -258,8 +271,7 @@ public final class HonrayCGIServlet extends HttpServlet {
      * @throws IOException
      */
     @Override
-    protected void service(HttpServletRequest req, HttpServletResponse res)
-            throws ServletException, IOException {
+    protected void service(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
 
         this.doGet(req, res);
     }
