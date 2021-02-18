@@ -27,7 +27,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-public final class HonrayCgiServlet
+public final class HonrayCGIServlet
         extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private int debug = 0;
@@ -379,8 +379,8 @@ public final class HonrayCgiServlet
             if (!this.isReady()) {
                 throw new IOException(this.getClass().getName() + ": not ready to run.");
             }
-            if (HonrayCgiServlet.this.debug >= 1) {
-                HonrayCgiServlet.this.log("runCGI(envp=[" + this.env + "], command=" + this.command + ")");
+            if (HonrayCGIServlet.this.debug >= 1) {
+                HonrayCGIServlet.this.log("runCGI(envp=[" + this.env + "], command=" + this.command + ")");
             }
             if (this.command.indexOf(File.separator + "." + File.separator) >= 0 || this.command.indexOf(File.separator + "..") >= 0 || this.command.indexOf(".." + File.separator) >= 0) {
                 throw new IOException(this.getClass().getName() + "Illegal Character in CGI command " + "path ('.' or '..') detected.  Not " + "running CGI [" + this.command + "].");
@@ -394,11 +394,11 @@ public final class HonrayCgiServlet
             Process proc = null;
             int bufRead = -1;
             ArrayList<String> cmdAndArgs = new ArrayList<String>();
-            if (HonrayCgiServlet.this.cgiExecutable.length() != 0) {
-                cmdAndArgs.add(HonrayCgiServlet.this.cgiExecutable);
+            if (HonrayCGIServlet.this.cgiExecutable.length() != 0) {
+                cmdAndArgs.add(HonrayCGIServlet.this.cgiExecutable);
             }
-            if (HonrayCgiServlet.this.cgiExecutableArgs != null) {
-                cmdAndArgs.addAll(HonrayCgiServlet.this.cgiExecutableArgs);
+            if (HonrayCGIServlet.this.cgiExecutableArgs != null) {
+                cmdAndArgs.addAll(HonrayCGIServlet.this.cgiExecutableArgs);
             }
             cmdAndArgs.add(this.command);
             cmdAndArgs.addAll(this.params);
@@ -428,8 +428,8 @@ public final class HonrayCgiServlet
                     try {
                         String line = null;
                         while ((line = cgiHeaderReader.readLine()) != null && !"".equals(line)) {
-                            if (HonrayCgiServlet.this.debug >= 2) {
-                                HonrayCgiServlet.this.log("runCGI: addHeader(\"" + line + "\")");
+                            if (HonrayCGIServlet.this.debug >= 2) {
+                                HonrayCGIServlet.this.log("runCGI: addHeader(\"" + line + "\")");
                             }
                             if (line.startsWith("HTTP")) {
                                 this.response.setStatus(this.getSCFromHttpStatusLine(line));
@@ -445,15 +445,15 @@ public final class HonrayCgiServlet
                                 this.response.addHeader(header, value);
                                 continue;
                             }
-                            HonrayCgiServlet.this.log("runCGI: bad header line \"" + line + "\"");
+                            HonrayCGIServlet.this.log("runCGI: bad header line \"" + line + "\"");
                         }
                         byte[] bBuf = new byte[2048];
                         ServletOutputStream out = this.response.getOutputStream();
                         cgiOutput = proc.getInputStream();
                         try {
                             while ((bufRead = cgiOutput.read(bBuf)) != -1) {
-                                if (HonrayCgiServlet.this.debug >= 4) {
-                                    HonrayCgiServlet.this.log("runCGI: output " + bufRead + " bytes of data");
+                                if (HonrayCGIServlet.this.debug >= 4) {
+                                    HonrayCGIServlet.this.log("runCGI: output " + bufRead + " bytes of data");
                                 }
                                 out.write(bBuf, 0, bufRead);
                             }
@@ -476,7 +476,7 @@ public final class HonrayCgiServlet
                 }
             }
             catch (IOException e) {
-                HonrayCgiServlet.this.log("Caught exception " + e);
+                HonrayCGIServlet.this.log("Caught exception " + e);
                 throw e;
             }
             finally {
@@ -485,7 +485,7 @@ public final class HonrayCgiServlet
                         cgiHeaderReader.close();
                     }
                     catch (IOException ioe) {
-                        HonrayCgiServlet.this.log("Exception closing header reader " + ioe);
+                        HonrayCGIServlet.this.log("Exception closing header reader " + ioe);
                     }
                 }
                 if (cgiOutput != null) {
@@ -493,19 +493,19 @@ public final class HonrayCgiServlet
                         cgiOutput.close();
                     }
                     catch (IOException ioe) {
-                        HonrayCgiServlet.this.log("Exception closing output stream " + ioe);
+                        HonrayCGIServlet.this.log("Exception closing output stream " + ioe);
                     }
                 }
                 if (errReaderThread != null) {
                     try {
-                        errReaderThread.join(HonrayCgiServlet.this.stderrTimeout);
+                        errReaderThread.join(HonrayCGIServlet.this.stderrTimeout);
                     }
                     catch (InterruptedException e) {
-                        HonrayCgiServlet.this.log("Interupted waiting for stderr reader thread");
+                        HonrayCGIServlet.this.log("Interupted waiting for stderr reader thread");
                     }
                 }
-                if (HonrayCgiServlet.this.debug > 4) {
-                    HonrayCgiServlet.this.log("Running finally block");
+                if (HonrayCGIServlet.this.debug > 4) {
+                    HonrayCGIServlet.this.log("Running finally block");
                 }
                 if (proc != null) {
                     proc.destroy();
@@ -518,7 +518,7 @@ public final class HonrayCgiServlet
             int statusCode;
             int statusStart = line.indexOf(32) + 1;
             if (statusStart < 1 || line.length() < statusStart + 3) {
-                HonrayCgiServlet.this.log("runCGI: invalid HTTP Status-Line:" + line);
+                HonrayCGIServlet.this.log("runCGI: invalid HTTP Status-Line:" + line);
                 return 500;
             }
             String status = line.substring(statusStart, statusStart + 3);
@@ -526,7 +526,7 @@ public final class HonrayCgiServlet
                 statusCode = Integer.parseInt(status);
             }
             catch (NumberFormatException nfe) {
-                HonrayCgiServlet.this.log("runCGI: invalid status code:" + status);
+                HonrayCGIServlet.this.log("runCGI: invalid status code:" + status);
                 return 500;
             }
             return statusCode;
@@ -535,7 +535,7 @@ public final class HonrayCgiServlet
         private int getSCFromCGIStatusHeader(String value) {
             int statusCode;
             if (value.length() < 3) {
-                HonrayCgiServlet.this.log("runCGI: invalid status value:" + value);
+                HonrayCGIServlet.this.log("runCGI: invalid status value:" + value);
                 return 500;
             }
             String status = value.substring(0, 3);
@@ -543,7 +543,7 @@ public final class HonrayCgiServlet
                 statusCode = Integer.parseInt(status);
             }
             catch (NumberFormatException nfe) {
-                HonrayCgiServlet.this.log("runCGI: invalid status code:" + status);
+                HonrayCGIServlet.this.log("runCGI: invalid status code:" + status);
                 return 500;
             }
             return statusCode;
@@ -557,23 +557,23 @@ public final class HonrayCgiServlet
             int lineCount = 0;
             try {
                 while ((line = rdr.readLine()) != null) {
-                    HonrayCgiServlet.this.log("runCGI (stderr):" + line);
+                    HonrayCGIServlet.this.log("runCGI (stderr):" + line);
                     ++lineCount;
                 }
             }
             catch (IOException e) {
-                HonrayCgiServlet.this.log("sendToLog error", e);
+                HonrayCGIServlet.this.log("sendToLog error", e);
             }
             finally {
                 try {
                     rdr.close();
                 }
                 catch (IOException ce) {
-                    HonrayCgiServlet.this.log("sendToLog error", ce);
+                    HonrayCGIServlet.this.log("sendToLog error", ce);
                 }
             }
-            if (lineCount > 0 && HonrayCgiServlet.this.debug > 2) {
-                HonrayCgiServlet.this.log("runCGI: " + lineCount + " lines received on stderr");
+            if (lineCount > 0 && HonrayCGIServlet.this.debug > 2) {
+                HonrayCGIServlet.this.log("runCGI: " + lineCount + " lines received on stderr");
             }
         }
     }
@@ -627,7 +627,7 @@ public final class HonrayCgiServlet
             if ((req.getMethod().equals("GET") || req.getMethod().equals("POST") || req.getMethod().equals("HEAD")) && (qs = isIncluded ? (String)req.getAttribute("javax.servlet.include.query_string") : req.getQueryString()) != null && qs.indexOf("=") == -1) {
                 StringTokenizer qsTokens = new StringTokenizer(qs, "+");
                 while (qsTokens.hasMoreTokens()) {
-                    this.cmdLineParameters.add(URLDecoder.decode(qsTokens.nextToken(), HonrayCgiServlet.this.parameterEncoding));
+                    this.cmdLineParameters.add(URLDecoder.decode(qsTokens.nextToken(), HonrayCGIServlet.this.parameterEncoding));
                 }
             }
         }
@@ -643,17 +643,17 @@ public final class HonrayCgiServlet
             if (cgiPathPrefix != null) {
                 webAppRootDir = webAppRootDir + File.separator + cgiPathPrefix;
             }
-            if (HonrayCgiServlet.this.debug >= 2) {
-                HonrayCgiServlet.this.log("findCGI: path=" + pathInfo + ", " + webAppRootDir);
+            if (HonrayCGIServlet.this.debug >= 2) {
+                HonrayCGIServlet.this.log("findCGI: path=" + pathInfo + ", " + webAppRootDir);
             }
             File currentLocation = new File(webAppRootDir);
             StringTokenizer dirWalker = new StringTokenizer(pathInfo, "/");
-            if (HonrayCgiServlet.this.debug >= 3) {
-                HonrayCgiServlet.this.log("findCGI: currentLoc=" + currentLocation);
+            if (HonrayCGIServlet.this.debug >= 3) {
+                HonrayCGIServlet.this.log("findCGI: currentLoc=" + currentLocation);
             }
             while (!currentLocation.isFile() && dirWalker.hasMoreElements()) {
-                if (HonrayCgiServlet.this.debug >= 3) {
-                    HonrayCgiServlet.this.log("findCGI: currentLoc=" + currentLocation);
+                if (HonrayCGIServlet.this.debug >= 3) {
+                    HonrayCGIServlet.this.log("findCGI: currentLoc=" + currentLocation);
                 }
                 String nextElement = (String)dirWalker.nextElement();
                 currentLocation = new File(currentLocation, nextElement);
@@ -662,8 +662,8 @@ public final class HonrayCgiServlet
             if (!currentLocation.isFile()) {
                 return new String[]{null, null, null, null};
             }
-            if (HonrayCgiServlet.this.debug >= 2) {
-                HonrayCgiServlet.this.log("findCGI: FOUND cgi at " + currentLocation);
+            if (HonrayCGIServlet.this.debug >= 2) {
+                HonrayCGIServlet.this.log("findCGI: FOUND cgi at " + currentLocation);
             }
             path = currentLocation.getAbsolutePath();
             name = currentLocation.getName();
@@ -671,8 +671,8 @@ public final class HonrayCgiServlet
             if (!servletPath.equals(cginame)) {
                 scriptname = scriptname + cginame;
             }
-            if (HonrayCgiServlet.this.debug >= 1) {
-                HonrayCgiServlet.this.log("findCGI calc: name=" + name + ", path=" + path + ", scriptname=" + scriptname + ", cginame=" + cginame);
+            if (HonrayCGIServlet.this.debug >= 1) {
+                HonrayCGIServlet.this.log("findCGI calc: name=" + name + ", path=" + path + ", scriptname=" + scriptname + ", cginame=" + cginame);
             }
             return new String[]{path, scriptname, cginame, name};
         }
@@ -693,7 +693,7 @@ public final class HonrayCgiServlet
                 this.webAppRootDir = this.tmpDir.toString();
                 this.expandCGIScript();
             }
-            String[] sCGINames = this.findCGI(sPathInfoOrig, this.webAppRootDir, this.contextPath, this.servletPath, HonrayCgiServlet.this.cgiPathPrefix);
+            String[] sCGINames = this.findCGI(sPathInfoOrig, this.webAppRootDir, this.contextPath, this.servletPath, HonrayCGIServlet.this.cgiPathPrefix);
             sCGIFullPath = sCGINames[0];
             sCGIScriptName = sCGINames[1];
             sCGIFullName = sCGINames[2];
@@ -753,13 +753,13 @@ public final class HonrayCgiServlet
                 StringBuilder srcPath = new StringBuilder();
                 StringBuilder destPath = new StringBuilder();
                 InputStream is = null;
-                if (HonrayCgiServlet.this.cgiPathPrefix == null) {
+                if (HonrayCGIServlet.this.cgiPathPrefix == null) {
                     srcPath.append(this.pathInfo);
                     is = this.context.getResourceAsStream(srcPath.toString());
                     destPath.append(this.tmpDir);
                     destPath.append(this.pathInfo);
                 } else {
-                    srcPath.append(HonrayCgiServlet.this.cgiPathPrefix);
+                    srcPath.append(HonrayCGIServlet.this.cgiPathPrefix);
                     StringTokenizer pathWalker = new StringTokenizer(this.pathInfo, "/");
                     while (pathWalker.hasMoreElements() && is == null) {
                         srcPath.append("/");
@@ -771,8 +771,8 @@ public final class HonrayCgiServlet
                     destPath.append((CharSequence)srcPath);
                 }
                 if (is == null) {
-                    if (HonrayCgiServlet.this.debug >= 2) {
-                        HonrayCgiServlet.this.log("expandCGIScript: source '" + srcPath + "' not found");
+                    if (HonrayCGIServlet.this.debug >= 2) {
+                        HonrayCGIServlet.this.log("expandCGIScript: source '" + srcPath + "' not found");
                     }
                     return;
                 }
@@ -783,8 +783,8 @@ public final class HonrayCgiServlet
                 String dirPath = destPath.toString().substring(0, destPath.toString().lastIndexOf("/"));
                 File dir = new File(dirPath);
                 if (!dir.mkdirs() && !dir.isDirectory()) {
-                    if (HonrayCgiServlet.this.debug >= 2) {
-                        HonrayCgiServlet.this.log("expandCGIScript: failed to create directories for '" + dir.getAbsolutePath() + "'");
+                    if (HonrayCGIServlet.this.debug >= 2) {
+                        HonrayCGIServlet.this.log("expandCGIScript: failed to create directories for '" + dir.getAbsolutePath() + "'");
                     }
                     return;
                 }
@@ -801,14 +801,14 @@ public final class HonrayCgiServlet
                         IOTools.flow(is, fos);
                         is.close();
                         fos.close();
-                        if (HonrayCgiServlet.this.debug >= 2) {
-                            HonrayCgiServlet.this.log("expandCGIScript: expanded '" + srcPath + "' to '" + destPath + "'");
+                        if (HonrayCGIServlet.this.debug >= 2) {
+                            HonrayCGIServlet.this.log("expandCGIScript: expanded '" + srcPath + "' to '" + destPath + "'");
                         }
                     }
                 }
                 catch (IOException ioe) {
-                    if (!f.exists() || f.delete() || HonrayCgiServlet.this.debug < 2) break block16;
-                    HonrayCgiServlet.this.log("expandCGIScript: failed to delete '" + f.getAbsolutePath() + "'");
+                    if (!f.exists() || f.delete() || HonrayCGIServlet.this.debug < 2) break block16;
+                    HonrayCGIServlet.this.log("expandCGIScript: failed to delete '" + f.getAbsolutePath() + "'");
                 }
             }
         }
@@ -819,7 +819,7 @@ public final class HonrayCgiServlet
             sb.append("<tr><th colspan=2 bgcolor=grey>");
             sb.append("CGIEnvironment Info</th></tr>");
             sb.append("<tr><td>Debug Level</td><td>");
-            sb.append(HonrayCgiServlet.this.debug);
+            sb.append(HonrayCGIServlet.this.debug);
             sb.append("</td></tr>");
             sb.append("<tr><td>Validity:</td><td>");
             sb.append(this.isValid());
