@@ -431,7 +431,7 @@ public final class HonrayCGIServlet extends HttpServlet {
             if (HonrayCGIServlet.this.debug >= 1) {
                 HonrayCGIServlet.this.log("runCGI(envp=[" + this.env + "], command=" + this.command + ")");
             }
-            if (this.command.indexOf(File.separator + "." + File.separator) >= 0 || this.command.indexOf(File.separator + "..") >= 0 || this.command.indexOf(".." + File.separator) >= 0) {
+            if (this.command.indexOf(File.separator + "." + File.separator) >= 0 || this.command.indexOf(File.separator + "") >= 0 || this.command.indexOf("" + File.separator) >= 0) {
                 throw new IOException(this.getClass().getName() + "Illegal Character in CGI command " + "path ('.' or '..') detected.  Not " + "running CGI [" + this.command + "].");
             }
             Runtime rt = null;
